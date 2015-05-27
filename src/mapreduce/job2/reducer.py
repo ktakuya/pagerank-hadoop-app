@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+# coding: utf-8
 
 import sys
 
@@ -17,28 +18,31 @@ def main():
             pages_dict[splited[0]].append(splited[1:])
         except Exception:
             continue
-    
+ 
     for key, values in pages_dict.items():
-        is_exist = False
-        links = ""
-        sum_ranks = 0.0
+        try:
+            is_exist = False
+            links = ""
+            sum_ranks = 0.0
 
-        for page in values:
-            if page[0] == "!":
-                is_exist = True
-                continue
-            if page[0].startswith("|"):
-                page[0] = page[0][1:]
-                links = "\t" + "\t".join(page)
-                continue
-            rank = float(page[1])
-            count_outlinks = int(page[2])
-            sum_ranks += (rank / count_outlinks)
+            for page in values:
+                if page[0] == "!":
+                    is_exist = True
+                    continue
+                if page[0].startswith("|"):
+                    page[0] = page[0][1:]
+                    links = "\t" + "\t".join(page)
+                    continue
+                rank = float(page[1])
+                count_outlinks = int(page[2])
+                sum_ranks += (rank / count_outlinks)
 
-        if not is_exist:
+            if not is_exist:
+                continue
+            new_rank = DAMPING * sum_ranks + (1.0 - DAMPING)
+            print("{0}\t{1}{2}".format(key, new_rank, links))
+        except Exception:
             continue
-        new_rank = DAMPING * sum_ranks + (1.0 - DAMPING)
-        print("{0}\t{1}{2}".format(key, new_rank, links))
 
 if __name__ == '__main__':
     main()
