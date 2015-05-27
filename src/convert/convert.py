@@ -2,12 +2,13 @@
 import sys
 import argparse
 
-DATA_DIR = '../../data/'
+data_dir = None
 
 def parse(name):
+    print("Page processing now")
     initial = 'INSERT INTO `{0}` VALUES '.format(name)
-    input_name = DATA_DIR + 'jawiki-20150512-{0}.sql'.format(name)
-    output_name = DATA_DIR + '{0}.txt'.format(name)
+    input_name = data_dir + 'jawiki-20150512-{0}.sql'.format(name)
+    output_name = data_dir + '{0}.txt'.format(name)
     with open(input_name, 'r') as r:
         with open(output_name, 'w') as w:
             for line in r:
@@ -19,9 +20,10 @@ def parse(name):
                     w.write('p' + row[1:] + "\n")
 
 def split_parse(name, splitlen):
+    print("Pagelinks processing now")
     initial = 'INSERT INTO `{0}` VALUES '.format(name)
-    input_name = DATA_DIR + 'jawiki-20150512-{0}.sql'.format(name)
-    output_name = DATA_DIR + '{0}-'.format(name)
+    input_name = data_dir + 'jawiki-20150512-{0}.sql'.format(name)
+    output_name = data_dir + '{0}-'.format(name)
     count = 0
     at = 0
     w = None
@@ -50,11 +52,18 @@ def split_parse(name, splitlen):
                 continue
 
 def main(args):
+    if not args.dir: return
+
+    global data_dir
+    data_dir = args.dir
+    if data_dir[-1] != '/':
+        data_dir += '/'
     if args.page: parse('page')
     if args.pagelinks: split_parse('pagelinks', 10000000)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--dir')
     parser.add_argument('-p', '--page', action='store_true')
     parser.add_argument('-pl', '--pagelinks', action='store_true')
     args = parser.parse_args()
