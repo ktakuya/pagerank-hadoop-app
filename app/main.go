@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./vote"
+	"github.com/ktakuya/vote-app/vote"
 	"log"
 	"net/http"
 )

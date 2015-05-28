@@ -6,7 +6,7 @@
     ws = new WebSocket(GetWebSocketURL());
 
     app = new Vue({
-      el: '#simple',
+      el: '#vote',
       data: {
         message: "Hello Vue.js",
         font:"",
@@ -28,12 +28,7 @@
 
 
   function addListener() {
-    // var msg = {"x":e.clientX+scroll_pos.x, "y": e.clientY+scroll_pos.y}
-    //ws.send(JSON.stringify(msg));
-    console.log("Yeah", app.message);
-
     ws.onmessage = function(e) {
-      console.log("recieved message: ", e.data);
       var scores = JSON.parse(e.data);
       app.scores = scores;
     };
