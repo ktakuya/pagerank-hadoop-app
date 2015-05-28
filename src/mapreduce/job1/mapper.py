@@ -41,6 +41,6 @@ def main():
             print("{0}\tl\t{1}".format(pl_from, pl_title))
 
 if __name__ == '__main__':
-    doctest.testmod()
+    # doctest.testmod()
     main()
 
