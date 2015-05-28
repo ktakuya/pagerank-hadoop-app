@@ -8,7 +8,7 @@
   <div id="simple">
     <span v-text="message" v-on="click: magnify" v-attr="style:font"></span>
     <br>
-    <div v-repeat="s : scores">
+    <div v-repeat="s : scores | orderBy 'score' -1">
         {{s.name}} - {{s.score}}
         <input type="button" v-on="click: addScore(s)" value="+1" />
     </div>
