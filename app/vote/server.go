@@ -100,7 +100,7 @@ func NewServer(entrypoint string) *Server {
 	s.sendAllCh = make(chan *Point)
 
 	var err error
-	s.conn, err = redis.Dial("tcp", ":6379")
+	s.conn, err = redis.Dial("tcp", "redis:6379")
 	if err != nil {
 		panic(err)
 	}
