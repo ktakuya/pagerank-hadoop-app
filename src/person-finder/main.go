@@ -14,7 +14,8 @@ import (
 
 type FindPerson struct {
 	queue   chan string
-	done    chan bool
+	done1    chan bool
+	done2    bool
 	mu      *sync.Mutex
 	count   int
 	ranking map[float64]string
@@ -51,7 +52,8 @@ func splitLine(line string) (float64, string) {
 func initFindPerson() *FindPerson {
 	fp := new(FindPerson)
 	fp.queue = make(chan string)
-	fp.done = make(chan bool)
+	fp.done1 = make(chan bool)
+	fp.done2 = false
 	fp.mu = new(sync.Mutex)
 	fp.count = 0
 	fp.ranking = make(map[float64]string)
@@ -61,9 +63,14 @@ func initFindPerson() *FindPerson {
 
 // Execute query
 func executeQuery(fp *FindPerson, line string) {
-	rank, query := splitLine(line)
+    fp.mu.Lock()
+    defer fp.mu.Unlock()
+    rank, query := splitLine(line)
 	resp, err := http.Get("http://ja.wikipedia.org/wiki/" + query)
-	errCheck(err)
+    if err != nil {
+        fmt.Fprintln(os.Stderr, err)
+        return
+    }
 
 	body, err := ioutil.ReadAll(resp.Body)
 	errCheck(err)
@@ -73,20 +80,22 @@ func executeQuery(fp *FindPerson, line string) {
 		return
 	}
 
-	fp.mu.Lock()
-	defer fp.mu.Unlock()
 	fp.count += 1
 	fp.ranking[rank] = query
-	if fp.count == 10 {
-		fp.done <- true
-	}
+    fmt.Println(rank, query)
+	
 }
 
 func fetcher(fp *FindPerson) {
 	for {
 		select {
 		case line := <-fp.queue:
-			go executeQuery(fp, line)
+			executeQuery(fp, line)
+            if fp.count == 10 {
+               fmt.Println("DONE")
+               fp.done2 = true
+               return
+            }
 		}
 	}
 }
@@ -103,11 +112,13 @@ func main() {
 	var line string
 	for {
 		select {
-		case <-fp.done:
-			break
 		default:
+            if fp.done2 {
+                fmt.Println("DONE main")
+                break
+            }
 			line, _ = reader.ReadString('\n')
-			fp.queue <- line
+            fp.queue <- strings.TrimSpace(line)
 		}
 	}
 
