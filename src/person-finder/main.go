@@ -81,8 +81,7 @@ func executeQuery(fp *FindPerson, line string) {
 	}
 
 	fp.count += 1
-	fp.ranking[rank] = query
-    fmt.Println(rank, query)
+    fmt.Printf("%f\t%s\n", rank, query)
 	
 }
 
@@ -91,11 +90,6 @@ func fetcher(fp *FindPerson) {
 		select {
 		case line := <-fp.queue:
 			executeQuery(fp, line)
-            if fp.count == 10 {
-               fmt.Println("DONE")
-               fp.done2 = true
-               return
-            }
 		}
 	}
 }
@@ -114,7 +108,6 @@ func main() {
 		select {
 		default:
             if fp.done2 {
-                fmt.Println("DONE main")
                 break
             }
 			line, _ = reader.ReadString('\n')
@@ -122,7 +115,4 @@ func main() {
 		}
 	}
 
-	for key, value := range fp.ranking {
-		fmt.Println(key, value)
-	}
 }
